@@ -1,0 +1,5 @@
+numpy>=1.24
+matplotlib>=3.7
+soundfile>=0.12
+PyQt5>=5.15
+imageio-ffmpeg>=0.4  # fournit un binaire ffmpeg embarqué pour mp3/wma/aac/...
