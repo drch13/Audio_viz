@@ -1,5 +1,8 @@
 name: Build Audio_viz.exe
 
+permissions:
+  contents: write  # nécessaire pour créer la release et y joindre l'exe sur les tags v*
+
 on:
   push:
     branches: [main]
