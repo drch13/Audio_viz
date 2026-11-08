@@ -15,11 +15,33 @@ Interface graphique de visualisation d'un signal audio.
      sélectionnée, calculé par transformée de Fourier rapide (FFT) avec une
      fenêtre de Hann.
 
-## Installation
+## Mode utilisateur final (exécutable Windows)
+
+Aucune installation de Python n'est nécessaire : téléchargez le fichier
+`Audio_viz.exe` puis double-cliquez dessus.
+
+- **Depuis une release** : sur la page GitHub du dépôt, section *Releases*
+  (créées automatiquement à chaque tag `v*`, ex. `v1.0.0`), téléchargez
+  `Audio_viz.exe` dans les fichiers joints.
+- **Depuis l'onglet Actions** : ouvrez l'onglet *Actions*, sélectionnez le workflow
+  « Build Audio_viz.exe » le plus récent (vert), puis téléchargez l'artifact
+  `Audio_viz-windows` (bouton *Download*) et extrayez `Audio_viz.exe`.
+
+Utilisation :
+
+```text
+Audio_viz.exe                  # puis « Ouvrir un fichier audio… »
+Audio_viz.exe mon_fichier.mp3  # ouverture directe (glisser-déposer aussi possible)
+```
+
+Le binaire `ffmpeg` est embarqué dans l'exécutable : tous les formats
+(mp3, wma, aac, m4a, opus, wav, flac, ogg, ...) fonctionnent sans rien installer.
+
+## Mode développeur (ligne de commande)
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # sous Windows : .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -27,12 +49,23 @@ pip install -r requirements.txt
 formats compressés. Un `ffmpeg` installé sur le système est également détecté
 automatiquement (ou via la variable d'environnement `FFMPEG_PATH`).
 
-## Utilisation
-
 ```bash
 python main.py                 # puis « Ouvrir un fichier audio… »
 python main.py mon_fichier.mp3 # ouverture directe
 ```
+
+Pour reconstruire soi-même l'exécutable (identique à la CI) :
+
+```bash
+pip install pyinstaller
+# Linux/macOS (séparateur ':') :
+pyinstaller --onefile --windowed --name Audio_viz --add-binary "$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())'):." main.py
+# Windows (séparateur ';') :
+pyinstaller --onefile --windowed --name Audio_viz --add-binary "$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())');." main.py
+```
+
+Le workflow CI (`.github/workflows/build-exe.yml`) effectue cette compilation
+automatiquement à chaque push sur `main`, chaque pull request et chaque tag `v*`.
 
 ## Tests
 
