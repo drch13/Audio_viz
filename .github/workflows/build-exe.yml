@@ -1,0 +1,48 @@
+name: Build Audio_viz.exe
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-exe:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Locate bundled ffmpeg binary
+        id: ffmpeg
+        shell: bash
+        run: |
+          echo "path=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')" >> "$GITHUB_OUTPUT"
+
+      - name: Build the exe with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name Audio_viz --add-binary "${{ steps.ffmpeg.outputs.path }};." main.py
+
+      - name: Upload exe as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Audio_viz-windows
+          path: dist/Audio_viz.exe
+
+      - name: Attach exe to release (on version tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Audio_viz.exe
